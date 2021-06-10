@@ -119,6 +119,7 @@ end
 %% outputs: coverage probability level of 0.95
 observed_cohen_d = reshape(cohen_d_observed, dim);
 observed_resid_std = reshape(observed_resid_std, dim);
+supGa_observed_95 = prctile(supG_observed, 95);
 
 % Observed boundary variables
 lower_contour_observed_95        = observed_cohen_d >= (1 - (3/(4*nSubj - 5)))^(-1)*thr - supGa_observed_95*sqrt(vw2)*observed_resid_std;
