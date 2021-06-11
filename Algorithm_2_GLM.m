@@ -38,6 +38,11 @@ X = table2array(designmatrix);
 if ~ismember('CONSTANT',designmatrix.Properties.VariableNames)
     error('the design matrix shoud include a column of 1s name "CONSTANT"')
 end
+% check that we have as many elements in the design matrix as 
+% in the contrast vector
+if (length(contrastvector)!=size(X,2))
+    error('contrast vector and design matrix don''t have the same number of elements')
+end
 % check that the contrast vector has the proper dimension, otherwise flip
 if (size(contrastvector,2)==size(X,2))
     contrastvector = contrastvector';
