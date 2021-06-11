@@ -1,10 +1,8 @@
 # Confidence_Sets_GLM
 
-Adapted from https://github.com/AlexBowring/Confidence_Sets_Manuscript.
-
 Compute Cohen's d confidence sets in a GLM setting, at the group level.
 
-The algorithm is adapted from Algorithm 2 in https://doi.org/10.1016/j.neuroimage.2020.117477.
+The algorithm is adapted from Algorithm 2 in https://doi.org/10.1016/j.neuroimage.2020.117477 and https://github.com/AlexBowring/Confidence_Sets_Manuscript/blob/master/Biobank_simulation/Algorithm_2_scripts/Algorithm_2.m.
 
 ## Inputs
 - contrast4d (string):        path to a 4d nii file of individual contrast estimates (created for example with fslmerge). gz is not supported. 
