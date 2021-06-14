@@ -13,7 +13,8 @@ function Algorithm_2_GLM(contrast4d, brainmask, design, contrastvector, thr, out
 %                               same as in the design matrix.
 % - thr (float, optional):      cohen's d threshold, default 0.5.
 % - outputfolder (string, optional):    path to a folder where the ouputs
-%                                       will be written.
+%                                       will be written. Default "output"
+%                                       in the current directory.
 %
 % Author: David Coynel, University of Basel
 % Adpated from https://github.com/AlexBowring/Confidence_Sets_Manuscript/blob/master/Biobank_simulation/Algorithm_2_scripts/Algorithm_2.m
@@ -40,7 +41,7 @@ if ~ismember('CONSTANT',designmatrix.Properties.VariableNames)
 end
 % check that we have as many elements in the design matrix as 
 % in the contrast vector
-if (length(contrastvector)!=size(X,2))
+if (length(contrastvector)~=size(X,2))
     error('contrast vector and design matrix don''t have the same number of elements')
 end
 % check that the contrast vector has the proper dimension, otherwise flip
@@ -51,6 +52,7 @@ end
 %% read data & mask
 VY = spm_vol(contrast4d);
 nSubj=length(VY);
+p = length(contrastvector);
 
 V = spm_vol(brainmask);
 Mask = spm_read_vols(V);
@@ -78,23 +80,27 @@ Ylin(isnan(excludevoxels),:) = NaN;
 %% estimate Cohen's d
 % normalized variance of the contrast vector
 vw2 = contrastvector'*inv(X'*X)*contrastvector;
-% observed variance
-std_observed = sqrt( (1/nSubj) * sum( (Ylin-mean(Ylin,2)).^2, 2) );
 % observed betas
 beta_observed = zeros(length(contrastvector), size(Ylin,1));
 for voxel = 1:size(Ylin,1)
     beta_observed(:,voxel) = inv(X'*X)*X'*Ylin(voxel,:)';
 end
-% observed Cohen's d
-cohen_d_observed = contrastvector'*beta_observed./std_observed';
 % observed residuals
 epsilon_observed = Ylin - (X*beta_observed)';
+% observed variance
+std_observed = zeros(size(Ylin,1),1);
+for voxel = 1:size(Ylin,1)
+    std_observed(voxel,1) = sqrt( (1/(nSubj-p)) * epsilon_observed(voxel,:)*epsilon_observed(voxel,:)' );
+end
+% observed Cohen's d
+cohen_d_observed = contrastvector'*beta_observed./std_observed';
+
 
 %% Cohen's d residuals
 observed_resid = epsilon_observed./std_observed - .5*cohen_d_observed'.*( (epsilon_observed./std_observed).^2 -1 );
 
 % normalize the residuals
-observed_resid_std = std(observed_resid,1,2);
+observed_resid_std = std(observed_resid,0,2);
 observed_resid_norm = observed_resid./observed_resid_std;
 
 %% Wild t-bootstrap approximating field
